@@ -38,7 +38,10 @@ mat-card {
   margin-bottom: 10px;
 }
 
-.departure-time,
+.departure-time {
+  text-align: right;
+  width: 100px;
+}
 .arrival-time {
   text-align: left;
   width: 100px;
@@ -67,8 +70,7 @@ mat-card {
   text-align: center;
   color: $home-blue;
   font-size: 14px;
-  width: 300px;
-  margin: 0 10px;
+  width: 260px;
 }
 
 .route-info {
@@ -142,4 +144,40 @@ mat-card {
   font-size: 14px;
   color: $home-ride-date-color;
   text-align: center;
+}
+
+@media (max-width: 700px) {
+  .travel-card {
+    display: flex;
+    flex-direction: column;
+    align-content: center;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 10px 10px 5px;
+  }
+
+  .price-info {
+    width: 90%;
+    display: flex;
+    flex-wrap: wrap;
+    text-align: right;
+    align-items: center;
+    justify-content: space-around;
+  }
+  .route-info,
+  .time-info {
+    flex-direction: column;
+    align-items: center;
+  }
+  .departure-time {
+    width: 100%;
+    text-align: left;
+  }
+  .arrival-time {
+    display: flex;
+    flex-direction: column-reverse;
+    width: 100%;
+    text-align: right;
+  }
 }
