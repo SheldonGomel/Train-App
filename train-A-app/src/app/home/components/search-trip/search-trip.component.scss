@@ -38,3 +38,16 @@
 .error {
   color: $error;
 }
+
+@media (max-width: 700px) {
+  .example-form,
+  .direction {
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-items: center;
+  }
+  .arrows {
+    margin: -20px 0 0px;
+    transform: rotate(90deg);
+  }
+}
