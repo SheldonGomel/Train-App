@@ -29,6 +29,10 @@ export const layoutRoutes: Routes = [
         path: 'home',
         loadComponent: () =>
           import('../home/pages/home-page/home-page.component').then((m) => m.HomePageComponent),
+        canActivate: [IsAuthorizedGuard],
+        data: {
+          role: ['guest', 'manager', 'user'],
+        },
       },
       {
         path: 'trip/:rideId',
@@ -53,7 +57,8 @@ export const layoutRoutes: Routes = [
       },
       {
         path: 'orders',
-        loadComponent: () => import('../orders/orders.component').then((m) => m.OrdersComponent),
+        loadComponent: () =>
+          import('../orders/pages/order-page.component').then((m) => m.OrderPageComponent),
         canActivate: [IsAuthorizedGuard],
         data: {
           role: ['manager', 'user'],
