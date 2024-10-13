@@ -4,7 +4,7 @@
   </button>
   <div class="ride-info">
     <div class="ride-route">
-      <span class="ride-cities">{{ this.ride.fromCity }} → {{ this.ride.toCity }}</span>
+      <span class="ride-cities">{{ fromCity.city }} → {{ toCity.city }}</span>
       <span class="ride-date">{{ this.ride.date | date: 'MMMM d, HH:mm' : '0' }}</span>
     </div>
     <div class="ride-details">
@@ -15,21 +15,23 @@
 </div>
 
 <mat-tab-group dynamicHeight>
-  @for (carriage of ride.carriages; track carriage.type) {
+  @for (carriage of carriageTypes; track carriage.name) {
     <mat-tab>
       <ng-template mat-tab-label>
         <div class="carriage-item">
-          <span class="label-text">{{ carriage.type }}: {{ carriage.seats }}</span>
-          <span class="label-text">${{ carriage.price }}</span>
+          <span class="label-text"
+            >{{ carriage.name }}: {{ carriageSchemas[carriage.name].seats }}</span
+          >
+          <span class="label-text">${{ carriage.leftSeats }}</span>
         </div>
       </ng-template>
       @for (car of tripDetails.carriages; track $index) {
-        @if (car === carriage.type) {
+        @if (car === carriage.name) {
           <div class="wrapper">
             <p>Carriage {{ $index }}</p>
             <div class="carriage">
               <app-carriage-schema
-                [carriage]="carriageSchemas[carriage.type]"
+                [carriage]="carriageSchemas[carriage.name]"
                 [isDisabled]="false"
               ></app-carriage-schema>
             </div>

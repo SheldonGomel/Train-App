@@ -8,9 +8,9 @@ export interface Carriage {
 
 export interface CarriageDataForSchema {
   name: string;
-  rows: string;
-  leftSeats: string;
-  rightSeats: string;
+  rows: number;
+  leftSeats: number;
+  rightSeats: number;
 }
 
 export type CarriageFormEditMode = 'create' | 'edit' | 'save';

@@ -15,6 +15,7 @@ export interface Ride {
   path: number[];
   carriages: string[];
   rideId: number;
+  routeId: number;
   schedule: { segments: Segment[] };
 }
 

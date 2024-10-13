@@ -102,9 +102,9 @@ export class CarriagesFormComponent implements OnInit, OnDestroy, AfterViewInit 
   private updateCarriageData(): void {
     this.carriageData = {
       name: this.carriageForm.get('name')?.value || '',
-      rows: this.carriageForm.get('rows')?.value?.toString() || '',
-      leftSeats: this.carriageForm.get('leftSeats')?.value?.toString() || '',
-      rightSeats: this.carriageForm.get('rightSeats')?.value?.toString() || '',
+      rows: Number(this.carriageForm.get('rows')?.value) || 0,
+      leftSeats: Number(this.carriageForm.get('leftSeats')?.value) || 0,
+      rightSeats: Number(this.carriageForm.get('rightSeats')?.value) || 0,
     };
   }
 

@@ -32,9 +32,9 @@ export class CarriagesItemComponent implements OnInit {
     if (this.item) {
       this.carriageData = {
         name: this.item.name,
-        rows: String(this.item.rows),
-        leftSeats: String(this.item.leftSeats),
-        rightSeats: String(this.item.rightSeats),
+        rows: this.item.rows,
+        leftSeats: this.item.leftSeats,
+        rightSeats: this.item.rightSeats,
       };
     }
   }

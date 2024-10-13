@@ -14,6 +14,7 @@ import { MatIcon } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { CarriageFacade } from 'app/admin-overview/_state/carriage/carriage.facade';
 import { NotificationService } from 'app/core/services/notification/notification.service';
+import { SearchService } from 'app/home/services/search.service';
 import { CarriageSchemaComponent } from '../carriage-schema/carriage-schema.component';
 
 @Component({
@@ -34,9 +35,21 @@ import { CarriageSchemaComponent } from '../carriage-schema/carriage-schema.comp
 export class TripComponent implements OnInit, OnDestroy {
   rideId: number = 0;
 
-  fromStationId: number = 0;
+  fromCity: Station = {
+    id: 0,
+    city: '',
+    latitude: 0,
+    longitude: 0,
+    connectedTo: [],
+  };
 
-  toStationId: number = 0;
+  toCity: Station = {
+    id: 0,
+    city: '',
+    latitude: 0,
+    longitude: 0,
+    connectedTo: [],
+  };
 
   stations: Station[] = [];
 
@@ -44,12 +57,15 @@ export class TripComponent implements OnInit, OnDestroy {
     path: [],
     carriages: [],
     rideId: 0,
+    routeId: 0,
     schedule: { segments: [] },
   };
 
   startStopStations = { start: 0, stop: 0 };
 
-  private carriageTypes: Carriage[] = [];
+  carriageTypes: Carriage[] = [];
+
+  allCarriageTypes: Carriage[] = [];
 
   carriagePrices: { type: string; price: number; seats: number }[] = [];
 
@@ -70,7 +86,7 @@ export class TripComponent implements OnInit, OnDestroy {
     schedule: [],
   };
 
-  carriageSchemas: { [type: string]: CarriageDataForSchema } = {};
+  carriageSchemas: { [type: string]: CarriageDataForSchema & { seats?: number } } = {};
 
   subscriptions: Subscription = new Subscription();
 
@@ -82,23 +98,25 @@ export class TripComponent implements OnInit, OnDestroy {
     private dialog: MatDialog,
     private router: Router,
     private notificationService: NotificationService,
+    private searchService: SearchService,
   ) {
     this.carriageFacade.loadCarriage();
     this.subscriptions.add(
       this.carriageFacade.carriage$.subscribe((cs) => {
-        this.carriageTypes = cs;
+        this.allCarriageTypes = cs;
         cs.forEach((carriage) => {
           this.carriageSchemas[carriage.name] = {
             name: carriage.name,
-            rows: String(carriage.rows),
-            leftSeats: String(carriage.leftSeats),
-            rightSeats: String(carriage.rightSeats),
+            rows: carriage.rows,
+            leftSeats: carriage.leftSeats,
+            rightSeats: carriage.rightSeats,
+            seats: 0,
           };
         });
       }),
     );
     this.subscriptions.add(
-      this.tripFacade.ride$.subscribe((ride) => {
+      this.tripFacade.ride$.subscribe((ride: ChosenRide) => {
         this.ride = ride;
       }),
     );
@@ -108,9 +126,15 @@ export class TripComponent implements OnInit, OnDestroy {
     this.rideId = Number(this.route.snapshot.paramMap.get('rideId')) || 0;
     this.subscriptions.add(
       this.route.queryParams.subscribe((params) => {
-        this.fromStationId = Number(params['from']) || 0;
-        this.toStationId = Number(params['to']) || 0;
-        this.fetchTripDetails();
+        const fromStationId = Number(params['from']) || 0;
+        const toStationId = Number(params['to']) || 0;
+        this.subscriptions.add(
+          this.searchService.getStations().subscribe((stations) => {
+            this.fromCity = stations.find((st) => st.id === fromStationId) ?? this.fromCity;
+            this.toCity = stations.find((st) => st.id === toStationId) ?? this.toCity;
+            this.fetchTripDetails();
+          }),
+        );
       }),
     );
   }
@@ -132,6 +156,20 @@ export class TripComponent implements OnInit, OnDestroy {
       this.subscriptions.add(
         this.tripService.getTripDetails(this.rideId).subscribe((data: Ride) => {
           this.tripDetails = data;
+          const { carriages } = data;
+          carriages.forEach((car) => {
+            if (!this.carriageTypes.find((ct) => ct.name === car)) {
+              const carriageIsInTrane = this.allCarriageTypes.find((ct) => ct.name === car);
+              if (carriageIsInTrane) this.carriageTypes.push(carriageIsInTrane);
+            }
+            const carSch = this.carriageSchemas[car];
+            this.carriageSchemas[car] = {
+              ...carSch,
+              seats: carSch?.seats
+                ? carSch.seats + carSch.rows * (carSch.leftSeats + carSch.rightSeats)
+                : carSch.rows * (carSch.leftSeats + carSch.rightSeats),
+            };
+          });
         }),
       );
     } else {
@@ -171,7 +209,7 @@ export class TripComponent implements OnInit, OnDestroy {
     this.dialog.open(TripStationsComponent, {
       width: '400px',
       data: {
-        path: { stations: this.ride.stations, id: this.ride.routeId },
+        path: { stations: this.ride.stations, id: this.tripDetails.routeId },
         schedule: this.ride.schedule,
         allStations: this.stations,
       },
